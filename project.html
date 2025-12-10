@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Playable Portfolio — Image-Based Side-Scroller</title>
+  <title>Playable Portfolio — Virus Side-Scroller</title>
   <style>
     html,body{height:100%;margin:0;background:#0b0b0d;color:#d8ffd8;font-family:monospace}
     #ui {position:absolute;top:12px;left:12px;z-index:20}
@@ -30,45 +30,33 @@
     </div>
   </div>
 
-  <footer>Prototype — Image-based side-scroller, knight character, platforms, terminals</footer>
+  <footer>Prototype — Virus-themed side-scroller with platforms and terminals</footer>
 
   <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.min.js"></script>
   <script>
-    let playerImg;
-    let bgImgs = [], fgImgs = [];
-
     const GRAVITY = 0.9, FRICTION = 0.85, MOVE_ACCEL = 1.2, MAX_SPEED = 6, JUMP_VELOCITY=-15, COYOTE_TIME=8, JUMP_BUFFER=8;
     let player, keys, platforms, cameraX, terminals;
     let coyoteTimer = 0, jumpBufferTimer = 0;
-
-    function preload(){
-      function safeLoad(path, fallbackColor){
-        return loadImage(path,
-          img => console.log(path + ' loaded'),
-          err => {
-            console.warn(path + ' failed to load, using fallback');
-            let gfx = createGraphics(100,100);
-            gfx.background(fallbackColor);
-            return gfx;
-          }
-        );
-      }
-
-      playerImg = safeLoad('gurb.png','#33ff55');
-      bgImgs[0] = safeLoad('ret.png','#003300');
-      bgImgs[1] = safeLoad('bg_mid.png','#006600');
-      fgImgs[0] = safeLoad('fg_near.png','#009900');
-      fgImgs[1] = safeLoad('fg_fore.png','#00cc00');
-    }
+    let glowPulse = 0, pulseDir = 1;
+    let binaryStream = [];
 
     function setup(){
       createCanvas(windowWidth, windowHeight);
       pixelDensity(1);
       initGame();
+
+      // Initialize a simplified binary stream for background
+      for (let i = 0; i < width; i += 30) {
+        let column = [];
+        for (let j = 0; j < height; j += 30) {
+          column.push(floor(random(2)));
+        }
+        binaryStream.push(column);
+      }
     }
 
     function initGame(){
-      player = { x:120, y:200, w:36, h:52, vx:0, vy:0, onGround:false, facing:1 };
+      player = { x:120, y:200, w:60, h:60, vx:0, vy:0, onGround:false, facing:1 };
       keys = {};
       cameraX = 0;
 
@@ -94,34 +82,140 @@
     function windowResized(){ resizeCanvas(windowWidth, windowHeight); }
 
     function draw(){
-      background(6,8,10);
+      drawBackground();
       push();
       translate(-cameraX,0);
 
-      for(let i=0;i<bgImgs.length;i++){
-        let xOffset = -cameraX * (0.3 + i*0.1);
-        image(bgImgs[i], xOffset, 0, bgImgs[i].width, height);
+      for(let p of platforms){
+        fill(12,40,10);
+        stroke(20,120,30);
+        strokeWeight(2);
+        rect(p.x, p.y, p.w, p.h, 4);
       }
 
-      for(let p of platforms){ fill(12,40,10); stroke(20,120,30); rect(p.x, p.y, p.w, p.h, 4); }
-
-      for(let t of terminals) drawTerminal(t);
+      for(let t of terminals){
+        drawTerminal(t);
+        drawTerminalPrompt(t);
+      }
 
       updatePlayer();
       drawPlayer();
-
-      for(let i=0;i<fgImgs.length;i++){
-        let xOffset = -cameraX * (0.7 + i*0.1);
-        image(fgImgs[i], xOffset, 0, fgImgs[i].width, height);
-      }
-
-      fill(0,255,65,20); rect(cameraX,0,width,height);
       pop();
 
       cameraX = lerp(cameraX, player.x - width*0.35, 0.14);
     }
 
-    function drawPlayer(){ push(); imageMode(CENTER); image(playerImg, player.x, player.y - player.h/2, player.w, player.h); pop(); }
+    function drawBackground() {
+      background(10,20,15);
+
+      // Toned down binary columns
+      for (let i = 0; i < binaryStream.length; i++) {
+        for (let j = 0; j < binaryStream[i].length; j++) {
+          let val = binaryStream[i][j];
+          fill(val === 1 ? color(0, 100 + random(50), 0, 180) : color(0, 30, 0, 100));
+          rect(i * 30, j * 30, 20, 20);
+        }
+      }
+
+      // Slow scrolling effect
+      for (let i = 0; i < binaryStream.length; i++) {
+        binaryStream[i].push(floor(random(100)));
+        binaryStream[i].shift();
+      }
+    }
+
+    function drawPlayer(){
+      push();
+      translate(player.x, player.y - player.h/2);
+      rectMode(CENTER);
+      noStroke();
+
+      glowPulse += 0.2 * pulseDir;
+      if(glowPulse > 8 || glowPulse < -8) pulseDir *= -1;
+
+      for(let i=-3;i<=3;i++){
+        for(let j=-3;j<=3;j++){
+          fill(200,0,0,20);
+          rect(i*6,j*6,player.w*0.15 + glowPulse, player.h*0.15 + glowPulse);
+        }
+      }
+
+      let bob = sin(frameCount*0.15)*3;
+
+      fill(0);
+      for(let i=-4;i<=4;i++){
+        for(let j=-3;j<=3;j++){
+          rect(i*6, j*6 + bob, 6,6);
+        }
+      }
+
+      // Head core
+      for(let i=-2;i<=2;i++){
+        for(let j=-2;j<=2;j++){
+          fill((i===0 && j===0) ? 255 : 0);
+          rect(i*6, -player.h*0.2 + j*6 + bob,6,6);
+        }
+      }
+
+      fill(200,0,0);
+      rect(-6,-player.h*0.2 + bob,3,3);
+      rect(6,-player.h*0.2 + bob,3,3);
+
+      stroke(50);
+      strokeWeight(3);
+      line(-10,-player.h*0.3 + bob,-20,-player.h*0.55);
+      line(10,-player.h*0.3 + bob,20,-player.h*0.55);
+
+      stroke(0);
+      strokeWeight(3);
+      line(-12,0 + bob,-22,10);
+      line(-12,10 + bob,-24,20);
+      line(-12,-10 + bob,-24,-20);
+      line(12,0 + bob,22,10);
+      line(12,10 + bob,24,20);
+      line(12,-10 + bob,24,-20);
+
+      pop();
+    }
+
+    function drawTerminal(t){
+      push();
+      translate(t.x, t.y);
+      strokeWeight(2);
+      stroke(255,50,50,150);
+      fill(5,45,12);
+      rect(0,0,t.w,t.h,6);
+      fill(4,120,20);
+      rect(6,6,t.w-12,t.h-22,4);
+      for(let i=0;i<3;i++){
+        fill(255,0,0, random(50,120));
+        rect(random(0,t.w)-t.w/2, random(0,t.h)-t.h/2,3,3);
+      }
+      fill(8,30,12);
+      rect(8,t.h-14,t.w-16,8,3);
+      pop();
+    }
+
+    function drawTerminalPrompt(t){
+      let px = player.x;
+      let py = player.y - player.h/2;
+      let dist = distBetween(px,py,t.x+t.w/2,t.y+t.h/2);
+      if(dist < 100){
+        push();
+        translate(t.x, t.y - t.h - 20);
+        fill(0,0,0,200);
+        stroke(200,0,0);
+        strokeWeight(2);
+        rectMode(CENTER);
+        rect(0,0,120,24,6);
+        fill(255,0,0);
+        noStroke();
+        textAlign(CENTER,CENTER);
+        textSize(14);
+        text("Press E to interact",0,0);
+        pop();
+      }
+    }
 
     function updatePlayer(){
       let left = keys['ArrowLeft'] || keys['a'] || keys['A'];
@@ -133,7 +227,11 @@
       if(!left && !right){ player.vx *= FRICTION; if(abs(player.vx)<0.05) player.vx=0; }
       player.vy += GRAVITY; player.x += player.vx; player.y += player.vy;
       player.onGround=false;
-      for(let p of platforms){ if(aabbIntersect(player.x-player.w/2,player.y-player.h,player.w,player.h,p.x,p.y,p.w,p.h)){ if(player.vy>0){ player.y=p.y; player.vy=0; player.onGround=true; coyoteTimer=COYOTE_TIME; } } }
+      for(let p of platforms){
+        if(aabbIntersect(player.x-player.w/2,player.y-player.h,player.w,player.h,p.x,p.y,p.w,p.h)){
+          if(player.vy>0){ player.y=p.y; player.vy=0; player.onGround=true; coyoteTimer=COYOTE_TIME; }
+        }
+      }
       if(!player.onGround) coyoteTimer--; else coyoteTimer=COYOTE_TIME;
       if(jump) jumpBufferTimer=JUMP_BUFFER; else jumpBufferTimer--;
       if(jumpBufferTimer>0 && coyoteTimer>0){ player.vy=JUMP_VELOCITY; player.onGround=false; coyoteTimer=0; jumpBufferTimer=0; }
@@ -142,16 +240,30 @@
 
     function aabbIntersect(ax,ay,aw,ah,bx,by,bw,bh){ return ax<bx+bw && ax+aw>bx && ay<by+bh && ay+ah>by; }
 
-    function drawTerminal(t){ push(); translate(t.x, t.y); fill(5,45,12); stroke(20,140,30); rect(0,0,t.w,t.h,6); fill(4,120,20); rect(6,6,t.w-12,t.h-22,4); fill(8,30,12); rect(8,t.h-14,t.w-16,8,3); pop(); }
-
-    function keyPressed(){ keys[key]=true; if(key.length===1) keys[key.toLowerCase()]=true; if(key==='e'||key==='E'){ checkInteract(); } if(['ArrowLeft','ArrowRight',' '].includes(key)) return false; }
+    function keyPressed(){
+      keys[key]=true;
+      if(key.length===1) keys[key.toLowerCase()]=true;
+      if(key==='e'||key==='E'){ checkInteract(); }
+      if(['ArrowLeft','ArrowRight',' '].includes(key)) return false;
+    }
     function keyReleased(){ keys[key]=false; if(key.length===1) keys[key.toLowerCase()]=false; }
     function mousePressed(){ if(document.getElementById('achievement').style.display==='block') return; keys[' ']=true; setTimeout(()=>{keys[' ']=false;},140); }
 
-    function checkInteract(){ for(let t of terminals){ let px=player.x; let py=player.y-player.h/2; let dist = distBetween(px,py,t.x+t.w/2,t.y+t.h/2); if(dist<90){ openOverlay(t.title,t.text); break; } } }
+    function checkInteract(){
+      for(let t of terminals){
+        let px=player.x; let py=player.y-player.h/2;
+        let dist = distBetween(px,py,t.x+t.w/2,t.y+t.h/2);
+        if(dist<90){ openOverlay(t.title,t.text); break; }
+      }
+    }
     function distBetween(x1,y1,x2,y2){ return Math.hypot(x2-x1,y2-y1); }
 
-    function openOverlay(title,text){ const ov=document.getElementById('achievement'); document.getElementById('ach-title').innerText=title; document.getElementById('ach-text').innerText=text; ov.style.display='block'; }
+    function openOverlay(title,text){
+      const ov=document.getElementById('achievement');
+      document.getElementById('ach-title').innerText=title;
+      document.getElementById('ach-text').innerText=text;
+      ov.style.display='block';
+    }
     function closeOverlay(){ const ov=document.getElementById('achievement'); ov.style.display='none'; }
     window.closeOverlay=closeOverlay;
   </script>

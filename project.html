@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Playable Portfolio — Image-Based Side-Scroller</title>
+  <style>
+    html,body{height:100%;margin:0;background:#0b0b0d;color:#d8ffd8;font-family:monospace}
+    #ui {position:absolute;top:12px;left:12px;z-index:20}
+    .hint{background:rgba(0,0,0,0.6);padding:8px 12px;border-radius:8px}
+    .overlay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:70%;max-width:900px;background:#071008;border:2px solid #0f5b0f;padding:18px;color:#b7f7b7;z-index:50;display:none}
+    .overlay h2{margin:0 0 8px 0}
+    .overlay button{background:#0f5b0f;border:1px solid #093; padding:8px 10px;color:#b9ffd3;border-radius:6px;cursor:pointer}
+    footer{position:fixed;right:12px;bottom:12px;color:#9bd19b;font-size:13px}
+    .terminal{background:#042004;border:1px solid #0e6b0e;padding:8px;border-radius:6px}
+  </style>
+</head>
+<body>
+  <div id="ui" class="hint">
+    <div>Controls: ←/→ or A/D to move • Space to jump • E to interact</div>
+  </div>
+
+  <div id="achievement" class="overlay">
+    <h2 id="ach-title">PROJECT NAME</h2>
+    <div id="ach-body" class="terminal">
+      <pre id="ach-text">Loading...</pre>
+    </div>
+    <div style="margin-top:12px;text-align:right">
+      <button onclick="closeOverlay()">Close</button>
+    </div>
+  </div>
+
+  <footer>Prototype — Image-based side-scroller, knight character, platforms, terminals</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.min.js"></script>
+  <script>
+    let playerImg;
+    let bgImgs = [], fgImgs = [];
+
+    const GRAVITY = 0.9, FRICTION = 0.85, MOVE_ACCEL = 1.2, MAX_SPEED = 6, JUMP_VELOCITY=-15, COYOTE_TIME=8, JUMP_BUFFER=8;
+    let player, keys, platforms, cameraX, terminals;
+    let coyoteTimer = 0, jumpBufferTimer = 0;
+
+    function preload(){
+      function safeLoad(path, fallbackColor){
+        return loadImage(path,
+          img => console.log(path + ' loaded'),
+          err => {
+            console.warn(path + ' failed to load, using fallback');
+            let gfx = createGraphics(100,100);
+            gfx.background(fallbackColor);
+            return gfx;
+          }
+        );
+      }
+
+      playerImg = safeLoad('gurb.png','#33ff55');
+      bgImgs[0] = safeLoad('ret.png','#003300');
+      bgImgs[1] = safeLoad('bg_mid.png','#006600');
+      fgImgs[0] = safeLoad('fg_near.png','#009900');
+      fgImgs[1] = safeLoad('fg_fore.png','#00cc00');
+    }
+
+    function setup(){
+      createCanvas(windowWidth, windowHeight);
+      pixelDensity(1);
+      initGame();
+    }
+
+    function initGame(){
+      player = { x:120, y:200, w:36, h:52, vx:0, vy:0, onGround:false, facing:1 };
+      keys = {};
+      cameraX = 0;
+
+      platforms = [
+        {x:-1000,y:500,w:4000,h:200},
+        {x:300,y:380,w:220,h:24},
+        {x:620,y:320,w:160,h:24},
+        {x:860,y:260,w:120,h:24},
+        {x:1120,y:360,w:200,h:24},
+        {x:1500,y:300,w:160,h:24},
+        {x:1800,y:380,w:220,h:24},
+        {x:2200,y:320,w:250,h:24}
+      ];
+
+      terminals = [
+        {x:540,y:260,w:48,h:64,title:'CGTrainer',text:'CGTrainer — Motion-based golf trainer\nTech: JS, iOS, IMU sensors\nNotes: Built a real device + web app'},
+        {x:1150,y:300,w:48,h:64,title:'Portfolio Site',text:'Portfolio Website\nTech: HTML/CSS/JS\nNotes: Retro aesthetic, custom loader'},
+        {x:1810,y:320,w:48,h:64,title:'AR Alignment',text:'AR Golf Alignment Aid\nTech: AR.js, mobile controller\nNotes: Lines + ball marker system'},
+        {x:2300,y:260,w:48,h:64,title:'Resume',text:'Resume & Achievements\nGPA, Competitions, Awards'}
+      ];
+    }
+
+    function windowResized(){ resizeCanvas(windowWidth, windowHeight); }
+
+    function draw(){
+      background(6,8,10);
+      push();
+      translate(-cameraX,0);
+
+      for(let i=0;i<bgImgs.length;i++){
+        let xOffset = -cameraX * (0.3 + i*0.1);
+        image(bgImgs[i], xOffset, 0, bgImgs[i].width, height);
+      }
+
+      for(let p of platforms){ fill(12,40,10); stroke(20,120,30); rect(p.x, p.y, p.w, p.h, 4); }
+
+      for(let t of terminals) drawTerminal(t);
+
+      updatePlayer();
+      drawPlayer();
+
+      for(let i=0;i<fgImgs.length;i++){
+        let xOffset = -cameraX * (0.7 + i*0.1);
+        image(fgImgs[i], xOffset, 0, fgImgs[i].width, height);
+      }
+
+      fill(0,255,65,20); rect(cameraX,0,width,height);
+      pop();
+
+      cameraX = lerp(cameraX, player.x - width*0.35, 0.14);
+    }
+
+    function drawPlayer(){ push(); imageMode(CENTER); image(playerImg, player.x, player.y - player.h/2, player.w, player.h); pop(); }
+
+    function updatePlayer(){
+      let left = keys['ArrowLeft'] || keys['a'] || keys['A'];
+      let right = keys['ArrowRight'] || keys['d'] || keys['D'];
+      let jump = keys[' '];
+      if(left && !right){ player.vx -= MOVE_ACCEL; player.facing=-1; }
+      if(right && !left){ player.vx += MOVE_ACCEL; player.facing=1; }
+      player.vx = constrain(player.vx, -MAX_SPEED, MAX_SPEED);
+      if(!left && !right){ player.vx *= FRICTION; if(abs(player.vx)<0.05) player.vx=0; }
+      player.vy += GRAVITY; player.x += player.vx; player.y += player.vy;
+      player.onGround=false;
+      for(let p of platforms){ if(aabbIntersect(player.x-player.w/2,player.y-player.h,player.w,player.h,p.x,p.y,p.w,p.h)){ if(player.vy>0){ player.y=p.y; player.vy=0; player.onGround=true; coyoteTimer=COYOTE_TIME; } } }
+      if(!player.onGround) coyoteTimer--; else coyoteTimer=COYOTE_TIME;
+      if(jump) jumpBufferTimer=JUMP_BUFFER; else jumpBufferTimer--;
+      if(jumpBufferTimer>0 && coyoteTimer>0){ player.vy=JUMP_VELOCITY; player.onGround=false; coyoteTimer=0; jumpBufferTimer=0; }
+      if(player.y>height+400){ player.x=120; player.y=200; player.vx=0; player.vy=0; cameraX=0; }
+    }
+
+    function aabbIntersect(ax,ay,aw,ah,bx,by,bw,bh){ return ax<bx+bw && ax+aw>bx && ay<by+bh && ay+ah>by; }
+
+    function drawTerminal(t){ push(); translate(t.x, t.y); fill(5,45,12); stroke(20,140,30); rect(0,0,t.w,t.h,6); fill(4,120,20); rect(6,6,t.w-12,t.h-22,4); fill(8,30,12); rect(8,t.h-14,t.w-16,8,3); pop(); }
+
+    function keyPressed(){ keys[key]=true; if(key.length===1) keys[key.toLowerCase()]=true; if(key==='e'||key==='E'){ checkInteract(); } if(['ArrowLeft','ArrowRight',' '].includes(key)) return false; }
+    function keyReleased(){ keys[key]=false; if(key.length===1) keys[key.toLowerCase()]=false; }
+    function mousePressed(){ if(document.getElementById('achievement').style.display==='block') return; keys[' ']=true; setTimeout(()=>{keys[' ']=false;},140); }
+
+    function checkInteract(){ for(let t of terminals){ let px=player.x; let py=player.y-player.h/2; let dist = distBetween(px,py,t.x+t.w/2,t.y+t.h/2); if(dist<90){ openOverlay(t.title,t.text); break; } } }
+    function distBetween(x1,y1,x2,y2){ return Math.hypot(x2-x1,y2-y1); }
+
+    function openOverlay(title,text){ const ov=document.getElementById('achievement'); document.getElementById('ach-title').innerText=title; document.getElementById('ach-text').innerText=text; ov.style.display='block'; }
+    function closeOverlay(){ const ov=document.getElementById('achievement'); ov.style.display='none'; }
+    window.closeOverlay=closeOverlay;
+  </script>
+</body>
+</html>

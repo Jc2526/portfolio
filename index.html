@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title> Portfolio</title>
+
+<style>
+/* BODY - disable scrolling on the page */
+body {
+  background: url("123.jpg") center/cover no-repeat fixed;
+  margin: 0;
+  font-family: monospace;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 23vh;
+  height: 100vh;
+  overflow: hidden; /* disables body scrolling */
+}
+
+/* SCREEN - scrollable if content overflows */
+.screen {
+  background: rgba(0,0,0,0.85);
+  box-shadow: 0 0 20px #00ff0075;
+  width: 350px;
+  padding: 44px;
+  color: #00ff00;
+  font-size: 16px;
+  white-space: pre-wrap;
+  max-height: 31vh;
+  overflow-y: auto; /* scroll inside screen only */
+  position: relative;
+}
+
+/* Terminal */
+.terminal { line-height: 1.4; }
+.prompt-line { display: flex; margin-top: 5px; }
+.prompt-line span { margin-right: 6px; }
+input {
+  background: transparent;
+  border: none;
+  color: #00ff00;
+  font-family: monospace;
+  font-size: 16px;
+  outline: none;
+  width: 100%;
+}
+.cursor::after { content: "\2588"; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 0%,100% {opacity:1;} 50% {opacity:0;} }
+
+/* Boot + mini matrix inside screen */
+#bootContainer { display: none; margin-top:10px; }
+#bootText { white-space: pre-wrap; font-size:14px; }
+#miniMatrix { width:100%; height:100px; margin-top:5px; background:black; display:block; }
+
+/* Fullscreen button */
+#fullscreenBtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #003300;
+  border: 1px solid #00ff00;
+  color: #00ff00;
+  padding: 4px 8px;
+  font-family: monospace;
+  font-size: 12px;
+  cursor: pointer;
+}
+#fullscreenBtn:hover { background: #005500; }
+
+/* Portfolio Mac Window */
+#portfolioWindow {
+  position: absolute;
+  top: 224px;
+  left: 140px;
+  width: 260px;
+  height: 200px;
+  background: #111;
+  border: 2px solid #00ff00;
+  display: none;
+  flex-direction: column;
+  z-index: 10;
+  cursor: default;
+}
+
+#portfolioWindow .title-bar {
+  background: #003300;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  cursor: grab;
+  user-select: none;
+  color: #00ff00;
+  font-size: 12px;
+}
+
+#portfolioWindow .content {
+  padding: 8px;
+  font-size: 12px;
+  color: #00ff00;
+  overflow: auto;
+}
+</style>
+</head>
+
+<body>
+<div class="screen" id="screen">
+  <button id="fullscreenBtn">Full Screen</button>
+
+  <div class="terminal" id="terminal">
+*** Couey golf trainer ***
+64K .load sway01_  38911 given const
+// Type PORT for simple portfolio, and RUN for full portfolio
+  </div>
+
+  <div class="prompt-line">
+    <span id="lineNumber">10</span>
+    <input type="text" id="commandInput" autofocus autocomplete="off" class="cursor"/>
+  </div>
+
+  <!-- Boot Animation -->
+  <div id="bootContainer">
+    <div id="bootText"></div>
+    <canvas id="miniMatrix"></canvas>
+  </div>
+</div>
+
+<!-- Portfolio window -->
+<div id="portfolioWindow">
+  <div class="title-bar" id="portfolioTitle">Portfolio</div>
+  <div class="content">
+    <h3>Jason Couey — Portfolio</h3>
+    <p>A high school student with a background in developing interactive websites, Professional websites, server side scripts, and motion-tracking devices. Eager to apply knowledge in real-world projects and internships.
+</p>
+
+    <h4>Education</h4>
+    <ul>
+      <li>Athens High School – Graduation: 2026</li>
+      <li>GPA: 4.0</li>
+      <li>Signed with Calhoun Community College on a golf scholarship</li>
+    </ul>
+
+    <h4>Professional Experience</h4>
+    <ul>
+      <li>CGTrainer Developer – Personal Project, 2025
+        <ul>
+          <li>Designed and built a golf training device with motion tracking using JavaScript, bun.ts, and Ngrok</li>
+          <li>Designed and built multiple websites for local businesses</li>
+          <li>Created my own custom cover language for simple and repetitive UI and layout elements</li>
+        </ul>
+      </li>
+      <li>Website Development for Local Businesses</li>
+    </ul>
+
+    <h4>Skills</h4>
+    <ul>
+      <li>JavaScript, Python, HTML/CSS, bun.ts</li>
+      <li>Interactive UI design, server-side development</li>
+      <li>Motion tracking, AR/VR concepts, CAD designing</li>
+    </ul>
+
+    <h4>Accomplishments & Certificates</h4>
+    <ul>
+      <li>Rolex AJGA Golf Ranking: 720th in the country, 17th in the state</li>
+      <li>Competed in multiple national events</li>
+      <li>Signed with Calhoun Community College</li>
+    </ul>
+
+    <p>Contact: jasoncooper_1@email.com</p>
+  </div>
+</div>
+
+<script>
+const terminal = document.getElementById('terminal');
+const input = document.getElementById('commandInput');
+const lineNumberDisplay = document.getElementById('lineNumber');
+const screen = document.getElementById('screen');
+const fullscreenBtn = document.getElementById('fullscreenBtn');
+const portfolioWindow = document.getElementById('portfolioWindow');
+const portfolioTitle = document.getElementById('portfolioTitle');
+
+let currentLine = 10;
+const commands = { cgt:'about.html', run:'main.html' };
+
+function printLine(text=''){ terminal.innerText += text+'\n'; }
+function promptReady(){ printLine('READY.\n'); lineNumberDisplay.textContent = currentLine; }
+
+// Boot + mini matrix inside screen
+function runBootThenPortfolio(){
+  const bootContainer = document.getElementById("bootContainer");
+  const bootText = document.getElementById("bootText");
+  const miniCanvas = document.getElementById("miniMatrix");
+
+  bootContainer.style.display="block";
+  portfolioWindow.style.display="none";
+  bootText.innerText="";
+
+  const lines=[
+    "[BOOT] Initializing CGTrainer v3.4...",
+    "[INFO] Loading sway correction...",
+    "[OK]  AR Alignment Core active.",
+    "[EXEC] Anti-Sway Protocol Online...",
+    "[DONE] SYSTEM READY ⚡"
+  ];
+
+  let line=0, char=0;
+  function typeBoot(){
+    if(line<lines.length){
+      if(char<lines[line].length){
+        bootText.innerText+=lines[line].charAt(char);
+        char++;
+        setTimeout(typeBoot,20);
+      } else {
+        bootText.innerText+="\n";
+        line++;
+        char=0;
+        setTimeout(typeBoot,120);
+      }
+    } else {
+      bootContainer.style.display="none";
+      portfolioWindow.style.display="flex";
+    }
+  }
+
+  // Mini Matrix animation
+  const letters="01", fontSize=10, columns=miniCanvas.width/fontSize;
+  const drops=Array.from({length:columns}).fill(1);
+  const ctx=miniCanvas.getContext("2d");
+
+  function drawMiniMatrix(){
+    ctx.fillStyle="rgba(0,0,0,0.07)";
+    ctx.fillRect(0,0,miniCanvas.width,miniCanvas.height);
+    ctx.fillStyle="#00FF00";
+    ctx.font=fontSize+"px monospace";
+    for(let i=0;i<drops.length;i++){
+      const text=letters.charAt(Math.floor(Math.random()*letters.length));
+      ctx.fillText(text,i*fontSize,drops[i]*fontSize);
+      if(drops[i]*fontSize>miniCanvas.height && Math.random()>0.975) drops[i]=0;
+      drops[i]++;
+    }
+  }
+
+  setInterval(drawMiniMatrix,50);
+  typeBoot();
+}
+
+// Terminal input
+input.addEventListener('keydown', function(e){
+  if(e.key==='Enter'){
+    const userInput=input.value.trim();
+    printLine(`${currentLine} ${userInput}`);
+
+    const parts=userInput.split(/\s+/);
+    const command=parts[0]?.toLowerCase();
+
+    if(command==="port"){
+      printLine("RUNNING CGTRAINER...");
+      runBootThenPortfolio();
+    } else if(command==="portfolio"){
+      printLine("OPENING PORTFOLIO WINDOW...");
+      portfolioWindow.style.display="flex";
+    } else if(commands[command]){
+      printLine(`LOADING ${command.toUpperCase()}...`);
+      setTimeout(()=>{ window.location.href=commands[command]; },1000);
+    } else {
+      printLine(`?SYNTAX ERROR IN ${currentLine}`);
+    }
+
+    currentLine+=10;
+    input.value='';
+    promptReady();
+  }
+});
+
+// Fullscreen button
+fullscreenBtn.addEventListener('click', ()=>{
+  if(screen.requestFullscreen){
+    screen.requestFullscreen();
+  }
+});
+
+
+// Drag Portfolio Window
+let isDragging = false, offsetX=0, offsetY=0;
+portfolioTitle.addEventListener('mousedown', e=>{
+  isDragging=true;
+  offsetX = e.clientX - portfolioWindow.offsetLeft;
+  offsetY = e.clientY - portfolioWindow.offsetTop;
+  portfolioTitle.style.cursor="grabbing";
+});
+document.addEventListener('mousemove', e=>{
+  if(isDragging){
+    portfolioWindow.style.left = (e.clientX - offsetX) + "px";
+    portfolioWindow.style.top = (e.clientY - offsetY) + "px";
+  }
+});
+document.addEventListener('mouseup', e=>{
+  isDragging=false;
+  portfolioTitle.style.cursor="grab";
+});
+
+promptReady();
+</script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jason Couey — Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body, html {
+    font-family: 'Share Tech Mono', monospace;
+    background: #0a0a0a;
+
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
+  /* Intro Video */
+  #introVideo {
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    object-fit: cover;
+    z-index: 1000;
+  }
+
+  /* CRT overlay video (appears after intro) */
+  #crtVideo {
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    object-fit: cover;
+    z-index: 1000;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+    opacity: 10000;
+    display: none;
+  }
+
+  #mainContent {
+    position: relative;
+    z-index: 1001;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    display: none;
+  }
+
+  header {
+    text-align: center;
+    padding: 3rem 1rem;
+    margin-bottom: 40px;
+  }
+
+  header h1 {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 1px #0f0;
+  }
+
+  header p { font-size: 1.2rem; font-weight: 500; }
+
+  section {
+    margin-bottom: 3rem;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.7s ease;
+  }
+
+  section.visible { opacity: 1; transform: translateY(0); }
+
+  h2 {
+    color: #0f0;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #0f0;
+    display: inline-block;
+    padding-bottom: 0.3rem;
+    font-weight: 700;
+    text-shadow: 0 0 0px #0f0;
+  }
+
+  p, li { line-height: 1.6; font-size: 1rem; color: #aaffaa; }
+
+  ul { list-style-type: disc; margin-left: 20px; }
+
+  .projects {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+    gap: 1.5rem;
+  }
+
+  .project-card {
+    background: rgba(0,0,0,0.85);
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px solid #0f0;
+    box-shadow: 0 8px 25px rgba(0,255,0,0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+  }
+
+  .project-card h3 { margin-bottom: 10px; color: #0f0; text-shadow: 0 0 1px #0f0; }
+  .project-card p { font-size: 0.95rem; color: #aaffaa; }
+
+  .skills span {
+    display: inline-block;
+    background: #0f0;
+    color: #0a0a0a;
+    padding: 0.4rem 0.8rem;
+    margin: 0.2rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-shadow: 0 0 2px #0f0;
+  }
+
+  footer {
+    text-align: center;
+    padding: 2rem 0;
+    font-size: 0.9rem;
+    color: #aaffaa;
+    border-top: 1px solid #0f0;
+    margin-top: 50px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Intro Video -->
+<video id="introVideo" autoplay playsinline>
+  <source src="1234.mov" type="video/quicktime">
+  Your browser does not support the video tag.
+</video>
+
+<!-- CRT overlay video (appears after intro) -->
+<video id="crtVideo" loop autoplay muted playsinline>
+  <source src="12345.mov" type="video/quicktime">
+  Your browser does not support the video tag.
+</video>
+
+<!-- Main Content -->
+<div id="mainContent">
+
+  <header>
+    <h1>Jason Couey</h1>
+    <p>High School Student | Web Developer | Golfer</p>
+  </header>
+
+  <section class="fade-section">
+    <h2>About Me</h2>
+    <p>A high school student passionate about web development, interactive technology, and golf motion tracking. I build AR/VR tools, custom websites, and motion-tracking devices while exploring advanced programming and design concepts.</p>
+  </section>
+
+  <section class="fade-section">
+    <h2>Education</h2>
+    <ul>
+      <li><strong>Athens High School</strong> – Graduation: 2026</li>
+      <li>GPA: 4.0</li>
+      <li>Signed with Calhoun Community College on a golf scholarship</li>
+    </ul>
+  </section>
+
+  <section class="fade-section">
+    <h2>Professional Experience & Projects</h2>
+    <div class="projects">
+      <div class="project-card" onclick="window.open(''_blank')">
+        <h3>CGTrainer Golf Motion Tracker</h3>
+        <p>Built a motion tracking golf trainer using JavaScript, bun.ts, and Ngrok to analyze and improve golf swings. Interactive device with web app dashboard. //Website is Down Right Now</p>
+      </div>
+      <div class="project-card" onclick="window.open('https://cslifted.com','_blank')">
+        <h3>Interactive Websites & Scripts</h3>
+        <p>Designed and deployed multiple interactive websites for local businesses, including custom UI/UX, server-side logic, and responsive layouts.  CLICK ME </p>
+      </div>
+      <div class="project-card" onclick="window.open('','_blank')">
+        <h3>AR Golf Alignment Aid</h3>
+        <p>Developed an AR application to project alignment lines and ball markers from phone to AR glasses, helping golfers visualize and adjust their setup. // Webist is Also Down Right Now</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="fade-section">
+    <h2>Skills</h2>
+    <div class="skills">
+      <span>JavaScript</span>
+      <span>Python</span>
+      <span>HTML/CSS</span>
+      <span>bun.ts</span>
+      <span>Interactive UI Design</span>
+      <span>Server-side Development</span>
+      <span>Motion Tracking</span>
+      <span>AR/VR Concepts</span>
+      <span>CAD Designing</span>
+    </div>
+  </section>
+
+  <section class="fade-section">
+    <h2>Accomplishments</h2>
+    <ul>
+      <li>Rolex AJGA Golf Ranking: 720th nationally, 17th in the state</li>
+      <li>Competed in multiple national events</li>
+      <li>Signed with Calhoun Community College</li>
+    </ul>
+  </section>
+
+  <footer>
+    Contact: jasoncooper_1@email.com
+  </footer>
+
+</div>
+
+<script>
+  const introVideo = document.getElementById('introVideo');
+  const crtVideo = document.getElementById('crtVideo');
+  const mainContent = document.getElementById('mainContent');
+
+  // When intro finishes
+  introVideo.addEventListener('ended', () => {
+    introVideo.style.display = 'none';
+    crtVideo.style.display = 'block';
+    mainContent.style.display = 'block';
+
+    // Animate sections
+    document.querySelectorAll('.fade-section').forEach((section, i) => {
+      setTimeout(() => section.classList.add('visible'), i * 300);
+    });
+  });
+
+  // Animate sections on scroll
+  const sections = document.querySelectorAll('.fade-section');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.1 });
+  sections.forEach(section => observer.observe(section));
+</script>
+
+</body>
+</html>

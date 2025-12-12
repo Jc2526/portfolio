@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio</title>
+<style>
+html, body {
+  margin:0; padding:0; width:100%; height:100%;
+  overflow:hidden;
+  font-family:"Chicago", monospace;
+  user-select:none;
+  background:url("back1.png") center/cover no-repeat fixed;
+  cursor: url('cursor.png'), default;
+}
+
+/* --- Intro Video & CRT Overlay --- */
+#introVideo, #crtVideo {
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  object-fit: cover;
+  z-index:1000;
+}
+#crtVideo {
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  opacity: 0; /* 0 = invisible, 1 = full intensity */
+  display: none;
+}
+
+/* --- Desktop Content --- */
+#desktopContent { display:none; position:relative; z-index:1001; width:100%; height:100%; }
+
+/* MENU BAR */
+.menubar{
+  height:34px;
+  background:black;
+  color:white;
+  display:flex;
+  align-items:center;
+  padding-left:10px;
+  font-size:14px;
+  position:relative;
+  z-index:1000;
+}
+.menu-item{
+  position:relative;
+  padding:6px 10px;
+  cursor:default;
+  user-select:none;
+}
+.menu-item:hover{background:#111}
+.menu-list{
+  position:absolute;
+  left:0;
+  top:34px;
+  background:#eee;
+  color:#000;
+  border:2px solid #000;
+  min-width:160px;
+  font-size:13px;
+  box-shadow:4px 4px 0 #000;
+  display:none;
+  z-index:2000;
+}
+.menu-list button{
+  display:block;
+  width:100%;
+  padding:6px 10px;
+  border:none;
+  background:transparent;
+  text-align:left;
+  cursor:pointer;
+}
+.menu-list button:hover{background:#ddd}
+
+/* DESKTOP ICONS */
+.icon{
+  width:70px;
+  text-align:center;
+  font-size:14px;
+  cursor:pointer;
+  position:absolute;
+  transition:0.08s;
+  z-index:500;
+}
+.icon img{
+  width:64px;
+  display:block;
+  margin:0 auto;
+  image-rendering:pixelated;
+}
+.icon .label{margin-top:6px;}
+.icon.selected{filter:invert(1) brightness(2);}
+
+/* WINDOWS */
+.window{
+  width:320px;
+  background:white;
+  border:2px solid black;
+  position:absolute;
+  display:none;
+  box-shadow:4px 4px 0 #000;
+  z-index:600;
+}
+.titlebar{
+  background:black;
+  color:white;
+  padding:4px 8px;
+  display:flex;
+  justify-content:space-between;
+  cursor:move;
+  font-size:14px;
+}
+.titlebar .close{cursor:pointer}
+.content{padding:12px;font-size:14px}
+
+/* TRASH LIST */
+.trash-list{list-style:none;padding:0;margin:0}
+.trash-list li{display:flex;justify-content:space-between;align-items:center;padding:6px;border-bottom:1px solid #ddd}
+
+/* BOTTOM BAR */
+.bottombar{
+  position:absolute;
+  left:0; right:0; bottom:0;
+  height:26px;
+  background:#d6d6d6;
+  border-top:2px solid #999;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 10px;
+  font-size:13px;
+  box-sizing:border-box;
+  z-index:100;
+}
+</style>
+</head>
+<body>
+
+<!-- Intro + CRT -->
+<video id="introVideo" autoplay playsinline>
+  <source src="1234.mov" type="video/quicktime">
+</video>
+<video id="crtVideo" loop autoplay muted playsinline>
+  <source src="12345.mov" type="video/quicktime">
+</video>
+
+<!-- Desktop -->
+<div id="desktopContent">
+
+  <!-- MENU BAR -->
+  <div class="menubar">
+    <div class="menu-item" onclick="toggleMenu(this)">
+      <div class="menu-list">
+        <button onclick="about()">About This Comp</button>
+        <button onclick="openWindow('cgtrainer')">Open CGTrainer</button>
+        <button onclick="openWindow('barber')">Open ARcgt</button>
+        <button onclick="openWindow('golf')">Open CGscript</button>
+        <button onclick="openWindow('cs')">Open Cslifted.com</button>
+        <button onclick="emptyTrash()">Empty Trash</button>
+        <button onclick="goHome()">Quit to Home</button>
+      </div>
+    </div>
+    <div class="menu-item" onclick="toggleMenu(this)">File
+      <div class="menu-list">
+        <button onclick="openWindow('cgtrainer')">Open CGTrainer</button>
+        <button onclick="openWindow('barber')">Open ARcgt</button>
+        <button onclick="openWindow('golf')">Open CGscript</button>
+        <button onclick="openWindow('cs')">Open Cslifted</button>
+      </div>
+    </div>
+    <div class="menu-item" onclick="toggleMenu(this)">Edit
+      <div class="menu-list">
+        <button onclick="selectAll()">Select All</button>
+        <button onclick="deselectAll()">Deselect</button>
+      </div>
+    </div>
+    <div class="menu-item" onclick="toggleMenu(this)">Special
+      <div class="menu-list">
+        <button onclick="emptyTrash()">Empty Trash</button>
+        <button onclick="restart()">Restart</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESKTOP ICONS -->
+  <div id="iconsRoot">
+    <div class="icon" style="top:70px; left:40px" onclick="selectIcon(this)" ondblclick="openWindow('cgtrainer')" onmousedown="startDragIcon(event,this)">
+      <img src="folder.png"><div class="label">CGTrainer</div>
+    </div>
+    <div class="icon" style="top:170px; left:40px" onclick="selectIcon(this)" ondblclick="openWindow('barber')" onmousedown="startDragIcon(event,this)">
+      <img src="folder.png"><div class="label">ARcgt</div>
+    </div>
+    <div class="icon" style="top:270px; left:40px" onclick="selectIcon(this)" ondblclick="openWindow('golf')" onmousedown="startDragIcon(event,this)">
+      <img src="folder.png"><div class="label">CGTscript</div>
+    </div>
+    <div class="icon" style="top:370px; left:40px" onclick="selectIcon(this)" ondblclick="openWindow('cs')" onmousedown="startDragIcon(event,this)">
+      <img src="folder.png"><div class="label">Cslifted</div>
+    </div>
+    <div class="icon" id="trashIcon" style="right:40px; bottom:40px" onclick="selectIcon(this)" ondblclick="openTrash()" onmousedown="startDragIcon(event,this)">
+      <img src="trash.png"><div class="label">Trash</div>
+    </div>
+  </div>
+
+  <!-- WINDOWS -->
+  <div id="cgtrainer" class="window" style="top:120px; left:160px">
+    <div class="titlebar" onmousedown="startDrag(event,this.parentElement)">CGTrainer <span class="close" onclick="closeWindow('cgtrainer')">✖</span></div>
+    <div class="content">A motion-based golf trainer with sensors + phone processing.<br>All Hardware, the app, and website was built from scratch. ('MAY Not load photos') <a href="https://jc2526.github.io/cgtrai/">CGt</a></div>
+  </div>
+  <div id="barber" class="window" style="top:150px; left:200px">
+    <div class="titlebar" onmousedown="startDrag(event,this.parentElement)"> ARcgt<span class="close" onclick="closeWindow('barber')">✖</span></div>
+    <div class="content">A Vr option to swing alignment and distance control  (no link coming soon)</div>
+  </div>
+  <div id="golf" class="window" style="top:180px; left:240px">
+    <div class="titlebar" onmousedown="startDrag(event,this.parentElement)">CGscript <span class="close" onclick="closeWindow('golf')">✖</span></div>
+    <div class="content">A cover language for website design (no link coming soon)</div>
+  </div>
+  <div id="cs" class="window" style="top:180px; left:240px">
+    <div class="titlebar" onmousedown="startDrag(event,this.parentElement)">Cslifted <span class="close" onclick="closeWindow('cs')">✖</span></div>
+    <div class="content">A website I built from the ground up for someone <a href="https://cslifted.com">Cslifted.com</a></div>
+  </div>
+
+  <!-- TRASH WINDOW -->
+  <div id="trashWin" class="window" style="top:120px; left:520px">
+    <div class="titlebar" onmousedown="startDrag(event,this.parentElement)">Scrapped Projects <span class="close" onclick="closeWindow('trashWin')">✖</span></div>
+    <div class="content">
+      <ul class="trash-list" id="trashList"></ul>
+      <div style="margin-top:10px">
+        <button onclick="emptyTrash()">Empty Trash</button>
+        <button onclick="closeWindow('trashWin')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM BAR -->
+  <div class="bottombar">
+    <div>Welcome </div>
+    <div id="timeDisplay">--:--:--</div>
+  </div>
+
+</div>
+
+<script>
+/* --- Intro + CRT --- */
+const introVideo = document.getElementById('introVideo');
+const crtVideo = document.getElementById('crtVideo');
+const desktopContent = document.getElementById('desktopContent');
+
+introVideo.addEventListener('ended', () => {
+  introVideo.style.display = 'none';
+  crtVideo.style.display = 'block';
+  desktopContent.style.display = 'block';
+});
+
+/* --- MENU --- */
+function toggleMenu(item){ closeAllMenus(); const list=item.querySelector('.menu-list'); if(list) list.style.display='block'; }
+function closeAllMenus(){ document.querySelectorAll('.menu-list').forEach(m=>m.style.display='none'); }
+document.body.addEventListener('click', e=>{ if(!e.target.closest('.menu-item')) closeAllMenus(); });
+function about(){ alert("Portfolio"); }
+function goHome(){ window.location.href='index.html'; }
+
+/* --- ICONS --- */
+function selectIcon(el){ document.querySelectorAll('.icon').forEach(i=>i.classList.remove('selected')); el.classList.add('selected'); }
+
+/* --- WINDOWS --- */
+function openWindow(id){ const w=document.getElementById(id); if(!w) return; w.style.display='block'; focusWindow(w); }
+function closeWindow(id){ const w=document.getElementById(id); if(!w) return; w.style.display='none'; }
+function focusWindow(win){ let top=600; document.querySelectorAll('.window').forEach(w=>{ let z=parseInt(getComputedStyle(w).zIndex)||0; if(z>top) top=z; }); win.style.zIndex=top+1; }
+
+/* --- DRAGGING WINDOWS --- */
+let dragging=null, offX=0, offY=0;
+function startDrag(e, win){ dragging=win; offX=e.clientX-win.offsetLeft; offY=e.clientY-win.offsetTop; document.addEventListener('mousemove', doDrag); document.addEventListener('mouseup', stopDrag); }
+function doDrag(e){ if(!dragging) return; dragging.style.left=(e.clientX-offX)+'px'; dragging.style.top=(e.clientY-offY)+'px'; }
+function stopDrag(){ dragging=null; document.removeEventListener('mousemove', doDrag); document.removeEventListener('mouseup', stopDrag); }
+
+/* --- DRAGGING ICONS --- */
+let draggingIcon=null, iconOffX=0, iconOffY=0;
+function startDragIcon(e, icon){ draggingIcon=icon; iconOffX=e.clientX-icon.offsetLeft; iconOffY=e.clientY-icon.offsetTop; document.addEventListener('mousemove', doDragIcon); document.addEventListener('mouseup', stopDragIcon); e.stopPropagation(); }
+function doDragIcon(e){ if(!draggingIcon) return; draggingIcon.style.left=(e.clientX-iconOffX)+'px'; draggingIcon.style.top=(e.clientY-iconOffY)+'px'; }
+function stopDragIcon(){ draggingIcon=null; document.removeEventListener('mousemove', doDragIcon); document.removeEventListener('mouseup', stopDragIcon); }
+
+/* --- TRASH --- */
+let trashItems = ["scrapped sensor motion detector for golf","a website for a golf store","2d platformer","RC Aircraft Custom flight Controller"];
+function renderTrash(){ const ul=document.getElementById('trashList'); ul.innerHTML=''; if(trashItems.length===0){ ul.innerHTML='<li style="padding:8px;color:#666">Trash is empty.</li>'; return; } trashItems.forEach((t,idx)=>{ const li=document.createElement('li'); li.innerHTML=`<span style="max-width:70%">${t}</span><span style="display:flex;gap:6px"><button onclick="deleteItem(${idx})">Delete</button></span>`; ul.appendChild(li); }); }
+function openTrash(){ renderTrash(); openWindow('trashWin'); }
+function deleteItem(idx){ trashItems.splice(idx,1); renderTrash(); }
+function emptyTrash(){ if(!confirm('Empty Trash?')) return; trashItems=[]; renderTrash(); }
+
+/* --- BOTTOM TIME --- */
+function updateTime(){ const el=document.getElementById('timeDisplay'); const d=new Date(); el.textContent=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`; }
+setInterval(updateTime,1000);
+updateTime();
+
+/* --- HELPERS --- */
+function selectAll(){ document.querySelectorAll('.icon').forEach(i=>i.classList.add('selected')); }
+function deselectAll(){ document.querySelectorAll('.icon').forEach(i=>i.classList.remove('selected')); }
+function restart(){ location.reload(); }
+</script>
+
+</body>
+</html>

@@ -72,11 +72,31 @@
       ];
 
       terminals = [
-        {x:540,y:260,w:48,h:64,title:'CGTrainer',text:'CGTrainer — Motion-based golf trainer\nTech: JS, iOS, IMU sensors\nNotes: Built a real device + web app'},
-        {x:1150,y:300,w:48,h:64,title:'Portfolio Site',text:'Portfolio Website\nTech: HTML/CSS/JS\nNotes: Retro aesthetic, custom loader'},
-        {x:1810,y:320,w:48,h:64,title:'AR Alignment',text:'AR Golf Alignment Aid\nTech: AR.js, mobile controller\nNotes: Lines + ball marker system'},
-        {x:2300,y:260,w:48,h:64,title:'Resume',text:'Resume & Achievements\nGPA, Competitions, Awards'}
-      ];
+        {
+            x: 540, y: 260, w: 48, h: 64,
+            title: '//CGTrainer.. My First Project',
+            text: 'CGTrainer —Is a Motion-based golf trainer\nIt uses sensors and the camera on your phone to detect\nswaying and other inconsistitinces in your golf swing\nNotes: Built a real device + web app ' ,
+
+          },
+          {
+            x: 1150, y: 300, w: 48, h: 64,
+            title: 'Portfolio Site',
+            text: 'Portfolio Website\nTech: HTML/CSS/JS\nNotes: Retro aesthetic, custom loader',
+            link: 'index.html'              // <— TO YOUR PORTFOLIO
+          },
+          {
+            x: 1810, y: 320, w: 48, h: 64,
+            title: 'AR Alignment',
+            text: 'AR Golf Alignment Aid\nTech: AR.js, mobile controller\nNotes: Lines + ball marker system',
+            link: 'ar-align.html'           // <— WHATEVER PAGE YOU WANT
+          },
+          {
+            x: 2300, y: 260, w: 48, h: 64,
+            title: 'Resume',
+            text: 'Resume & Achievements\nGPA, Competitions, Awards',
+            link: 'resume.html'             // <— YOUR RESUME PAGE
+          }
+        ];
     }
 
     function windowResized(){ resizeCanvas(windowWidth, windowHeight); }
@@ -235,7 +255,10 @@
       if(!player.onGround) coyoteTimer--; else coyoteTimer=COYOTE_TIME;
       if(jump) jumpBufferTimer=JUMP_BUFFER; else jumpBufferTimer--;
       if(jumpBufferTimer>0 && coyoteTimer>0){ player.vy=JUMP_VELOCITY; player.onGround=false; coyoteTimer=0; jumpBufferTimer=0; }
-      if(player.y>height+400){ player.x=120; player.y=200; player.vx=0; player.vy=0; cameraX=0; }
+      if (player.y > height + 400) {
+  window.location.href = "index.html";
+}
+
     }
 
     function aabbIntersect(ax,ay,aw,ah,bx,by,bw,bh){ return ax<bx+bw && ax+aw>bx && ay<by+bh && ay+ah>by; }

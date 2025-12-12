@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CS BASIC</title>
+
+<style>
+
+  /* 🔹 Set background image */
+  body {
+    background: url("123.jpg") center/cover no-repeat fixed;
+  margin: 0;
+  font-family: monospace;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 23vh;   /* stays consistent when resizing */
+  height: 100vh;
+  }
+
+
+  .screen {
+  background: rgba(0, 0, 0, 0.85);
+  box-shadow: 0 0 20px #00ff0075;
+  width: 350px;
+  padding: 44px;
+  color: #00ff00;
+  font-size: 16px;
+  white-space: pre-wrap;
+
+  /* 🔥 ADD THESE */
+  max-height: 31vh;      /* screen won't grow past this height */
+  overflow-y: auto;      /* scroll inside the screen */
+}
+
+
+  .terminal {
+    line-height: 1.4;
+  }
+
+  .prompt-line {
+    display: flex;
+  }
+
+  .prompt-line span {
+    margin-right: 6px;
+  }
+
+  input {
+    background: transparent;
+    border: none;
+    color: #00ff00;
+    font-family: monospace;
+    font-size: 16px;
+    outline: none;
+    width: 100%;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .cursor::after {
+    content: "\2588"; /* Full block cursor */
+    animation: blink 1s steps(1) infinite;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="screen">
+  <div class="terminal" id="terminal">
+*** Couey Portforlio ***
+64K .load sway01_  38911 given const
+
+  </div>
+
+  <div class="prompt-line">
+    <span id="lineNumber">10</span>
+    <input type="text" id="commandInput" autofocus autocomplete="off" class="cursor"/>
+  </div>
+</div>
+
+<script>
+  const terminal = document.getElementById('terminal');
+  const input = document.getElementById('commandInput');
+  const lineNumberDisplay = document.getElementById('lineNumber');
+
+  let currentLine = 10;
+
+  const commands = {
+    cgt: 'about.html',
+    run_program: 'insidethematrix.html',
+    run: 'index.html',
+  };
+
+  function printLine(text = '') {
+    terminal.innerText += text + '\n';
+  }
+
+  function promptReady() {
+    printLine('READY.\n');
+    lineNumberDisplay.textContent = currentLine;
+  }
+
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      const userInput = input.value.trim();
+      printLine(`${currentLine} ${userInput}`);
+
+      const parts = userInput.split(/\s+/);
+      const command = parts[0]?.toLowerCase();
+
+      if (commands[command]) {
+        printLine(`LOADING ${command.toUpperCase()}...`);
+        setTimeout(() => {
+          window.location.href = commands[command];
+        }, 1000);
+      } else {
+        printLine(`?SYNTAX ERROR IN ${currentLine}`);
+      }
+
+      currentLine += 10;
+      input.value = '';
+      promptReady();
+
+    }
+  });
+
+  // Start prompt
+  promptReady();
+</script>
+
+</body>
+</html>

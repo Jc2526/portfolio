@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Jason's Mac</title>
+  <style>
+    body {
+      margin: 0;
+      background: url('https://macoswallpapers.com/wp-content/uploads/2023/10/sonoma-light.jpeg') no-repeat center center/cover;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      overflow: hidden;
+    }
+
+    .window {
+      width: 300px;
+      height: 200px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+      position: absolute;
+      top: 100px;
+      left: 100px;
+      display: flex;
+      flex-direction: column;
+      transition: opacity 0.3s ease;
+    }
+
+    .titlebar {
+      background: #f2f2f2;
+      height: 30px;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      cursor: move;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 5px;
+      margin-right: auto;
+    }
+
+    .btn {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .close { background: #ff5f57; }
+    .minimize { background: #ffbd2e; }
+    .maximize { background: #28c940; }
+
+    .content {
+      padding: 10px;
+      flex-grow: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="window" id="myWindow">
+    <div class="titlebar" id="dragBar">
+      <div class="buttons">
+        <div class="btn close" id="closeBtn"></div>
+        <div class="btn minimize"></div>
+        <div class="btn maximize"></div>
+      </div>
+    </div>
+    <div class="content">
+      Welcome to your Mac-style website!
+    </div>
+  </div>
+
+  <script>
+    // Dragging
+    const win = document.getElementById("myWindow");
+    const bar = document.getElementById("dragBar");
+
+    bar.addEventListener("mousedown", function (e) {
+      let offsetX = e.clientX - win.offsetLeft;
+      let offsetY = e.clientY - win.offsetTop;
+
+      function drag(e) {
+        win.style.left = `${e.clientX - offsetX}px`;
+        win.style.top = `${e.clientY - offsetY}px`;
+      }
+
+      function stopDrag() {
+        document.removeEventListener("mousemove", drag);
+        document.removeEventListener("mouseup", stopDrag);
+      }
+
+      document.addEventListener("mousemove", drag);
+      document.addEventListener("mouseup", stopDrag);
+    });
+
+    // Close Button
+    const closeBtn = document.getElementById("closeBtn");
+    closeBtn.addEventListener("click", () => {
+      win.style.opacity = 0;
+      setTimeout(() => {
+        win.style.display = "none";
+      }, 300); // match transition duration
+    });
+  </script>
+</body>
+</html>

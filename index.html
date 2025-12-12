@@ -112,7 +112,7 @@ input {
   <div class="terminal" id="terminal">
 *** Couey golf trainer ***
 64K .load sway01_  38911 given const
-// Type PORT for simple portfolio, and RUN for full portfolio
+// Type Runfor Main Display, type port for simple portfolio, and pf for full portfolio
   </div>
 
   <div class="prompt-line">
@@ -182,7 +182,7 @@ const portfolioWindow = document.getElementById('portfolioWindow');
 const portfolioTitle = document.getElementById('portfolioTitle');
 
 let currentLine = 10;
-const commands = { pro:'project.html', run:'main.html' };
+const commands = { run:'port.html', pf:'main.html' };
 
 function printLine(text=''){ terminal.innerText += text+'\n'; }
 function promptReady(){ printLine('READY.\n'); lineNumberDisplay.textContent = currentLine; }
